@@ -1,0 +1,17 @@
+{
+  "name": "health-life-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "健康生活 App - Capacitor Android GitHub Actions build",
+  "scripts": {
+    "android:sync": "npx cap sync android",
+    "android:open": "npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "7.4.3",
+    "@capacitor/core": "7.4.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "7.4.3"
+  }
+}

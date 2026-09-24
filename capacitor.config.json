@@ -1,0 +1,6 @@
+{
+  "appId": "com.healthlife.app",
+  "appName": "健康生活",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}
