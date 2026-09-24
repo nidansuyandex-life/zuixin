@@ -1,51 +1,42 @@
-# 健康生活 Android App（GitHub 自动生成 APK）
+# 健康生活 Android App - GitHub Actions 构建版
 
-这是基于原始 `www/index.html` 的 Capacitor Android 项目。
+这个版本将 `www/index.html` 原网页打包为 Capacitor Android App，并针对“点击麦克风后还没来得及说话就识别失败”增加了**原生 Android 系统语音识别桥接**。
 
-## 本版本特别修复：手机没有“麦克风”权限
+## 本次语音修复
 
-App 的 AI 语音记账使用网页端 `SpeechRecognition / webkitSpeechRecognition`。Android WebView 要使用麦克风，需要 Android 原生 Manifest 声明 `RECORD_AUDIO`；同时 Android 11+ 对系统语音识别服务需要声明 `RecognitionService` 查询。
+GitHub Actions 构建时会自动：
 
-GitHub Actions 在 `npx cap add android` 后自动执行 `patch-android-permissions.py`，为生成的 Android 工程加入：
+1. 添加 `RECORD_AUDIO`、`MODIFY_AUDIO_SETTINGS` 权限；
+2. 添加 Android 11+ 语音识别服务查询；
+3. 写入原生 `MainActivity.java`，通过 Android `SpeechRecognizer` 接收中文语音；
+4. 设置中文 `zh-CN`；
+5. 将最低语音输入时长设置为 15 秒，并允许更长的停顿；
+6. 识别结果自动回传网页现有的 `window.onNativeSpeechResult()`，所以不需要重新设计记账页面；
+7. 如果识别失败，会把具体原因返回到页面，而不是统一显示“识别失败”。
 
-- `android.permission.RECORD_AUDIO`
-- `android.permission.MODIFY_AUDIO_SETTINGS`
-- `android.speech.RecognitionService` 查询
+## GitHub 使用
 
-Capacitor 自带的 `BridgeWebChromeClient` 会处理 WebView 的 `AUDIO_CAPTURE` 权限请求；因此这版不需要改你的 HTML 语音记账逻辑。
+将压缩包里的内容直接放到 GitHub 仓库根目录，确保仓库根目录能看到：
 
-## GitHub 使用方式
+- `package.json`
+- `package-lock.json`
+- `capacitor.config.json`
+- `www/index.html`
+- `patch-android-permissions.py`
+- `patch-native-voice.py`
+- `.github/workflows/android.yml`
 
-把 ZIP 解压后，将**里面的所有内容**上传到 GitHub 仓库根目录。仓库根目录必须直接看到：
+然后进入 GitHub：`Actions` → `Build Android APK` → `Run workflow`。
 
-```text
-package.json
-package-lock.json
-capacitor.config.json
-www/
-.github/
-patch-android-permissions.py
-```
+构建完成后，在 Actions 的 Artifacts 中下载 `health-life-android-apk`，安装新的 `app-debug.apk`。
 
-然后：
+## 使用语音记账
 
-1. 打开 GitHub → Actions
-2. 选择 `Build Android APK`
-3. 点击 `Run workflow`
-4. 等待完成
-5. 在该次运行底部 `Artifacts` 下载 `health-life-android-apk`
-6. 解压得到 `app-debug.apk`
+安装新版 APK 后：
 
-安装新 APK 后：
+1. 第一次点击麦克风时允许麦克风权限；
+2. 等页面显示“聆听中”；
+3. 直接说完整一句，例如：`今天午餐花了三十五元`；
+4. 说完自然停顿，系统会把识别文字回传到记账页面。
 
-**手机设置 → 应用 → 健康生活 → 权限**
-
-此时应该能看到：
-
-**麦克风 → 允许（仅在使用应用时）**
-
-第一次点击 AI 语音记账时，如果 Android 弹出麦克风授权框，请选择“允许”。
-
-## 注意
-
-不要安装旧版本 APK 测试麦克风权限；需要安装本版本重新编译出来的 APK。
+注意：这个版本不再依赖 Android WebView 自己的 Web Speech API 作为主要语音路径，而是优先走原生 Android `SpeechRecognizer`。
