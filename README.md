@@ -1,28 +1,37 @@
-# 健康生活 Android App
+# 健康生活 Android App（GitHub 自动编译版）
 
-这是把 `www/index.html` 直接封装成 Android APK 的 GitHub Actions 项目。
+这是一套把 `www/index.html` 包装成 Android APK 的 Capacitor 项目。
 
 ## GitHub 使用方法
 
-1. 把本目录中的**全部文件和文件夹**上传到 GitHub 仓库的**根目录**。
-2. 确认仓库根目录可以直接看到：
+1. 解压本压缩包。
+2. 将压缩包**里面的全部内容**上传到 GitHub 仓库根目录。
+3. 确认仓库根目录直接看到：
    - `package.json`
    - `package-lock.json`
    - `capacitor.config.json`
    - `www/index.html`
    - `.github/workflows/android.yml`
-3. 打开 GitHub → **Actions** → **Build Android APK** → **Run workflow**。
-4. 编译完成后打开本次运行记录，在 **Artifacts** 下载 `健康生活-Android-APK`。
-5. 解压后得到 `app-debug.apk`，安装到 Android 手机即可。
+4. 打开 GitHub → Actions。
+5. 选择 **Build Android APK**。
+6. 点击 **Run workflow**。
+7. 编译完成后打开本次运行记录，在 **Artifacts** 下载 `health-life-android-apk`。
 
-## 重要
+## 本版针对之前的错误做的修复
 
-不要把整个 `BuildFixed` 文件夹再套一层上传。如果 GitHub 仓库根目录叫 `health-life-app`，那么 `package.json` 必须直接位于：
+之前日志已经成功通过 SDK license 接受阶段，但 `android-actions/setup-android@v3` 后执行 `sdkmanager tools` 时失败：
 
-`health-life-app/package.json`
+`Warning Failed to find package 'tools'`
 
-而不是：
+因此本版**完全移除了 `android-actions/setup-android@v3`**，不再安装已经废弃的 `tools` 包。
 
-`health-life-app/Build/package.json`
+GitHub Runner 自带 Android SDK，本版直接使用 Runner 中的 `sdkmanager`，只安装：
+- platform-tools
+- platforms;android-35
+- build-tools;35.0.0
 
-项目使用 `npm ci`，所以已经包含 `package-lock.json`，可以满足 GitHub Actions 的 npm cache 要求。
+同时保留 `package-lock.json`，避免 `actions/setup-node` 的 npm cache 检查报 “Dependencies lock file is not found”。
+
+## 注意
+
+请把本压缩包中的文件直接放到仓库根目录，不要再套一层 `Build` 文件夹。
